@@ -3,6 +3,10 @@ p <- runif(10)
 p <- p / sum(p)
 x <- ffp(p)
 
+# less than 5 obs
+p_short <- runif(4)
+p_short <- p_short / sum(p_short)
+p_short <- as_ffp(p_short)
 
 # ffp() -------------------------------------------------------------------
 
@@ -10,6 +14,9 @@ test_that("testing ffp()", {
   expect_type(x, "double")
   expect_s3_class(x, "ffp")
   expect_length(x, 10L)
+  expect_type(p_short, "double")
+  expect_s3_class(p_short, "ffp")
+  expect_length(p_short, 4L)
 })
 
 
@@ -32,11 +39,12 @@ test_that("testing as_ffp() works on double's", {
   expect_true(is_ffp(as_ffp(p)))
 })
 
-int <- as.integer(runif(10))
+int <- as.integer(round(stats::runif(100), 0))
+int <- int / sum(int)
 test_that("testing as_ffp() works on integers's", {
   expect_type(as_ffp(int), "double")
   expect_s3_class(as_ffp(int), "ffp")
-  expect_length(as_ffp(int), 10L)
+  expect_length(as_ffp(int), 100L)
   expect_true(is_ffp(as_ffp(int)))
 })
 
@@ -84,3 +92,10 @@ test_that("`ffp` supports math operations yielding double's", {
   expect_length(sign(x), 10L)
   expect_length(sqrt(x), 10L)
 })
+
+
+test_that("`ffp` prints correctly", {
+  expect_snapshot_output(x)
+  expect_snapshot_output(p_short)
+})
+

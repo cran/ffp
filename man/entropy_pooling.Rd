@@ -4,7 +4,15 @@
 \alias{entropy_pooling}
 \title{Numerical Entropy Minimization}
 \usage{
-entropy_pooling(p, A = NULL, b = NULL, Aeq, beq)
+entropy_pooling(
+  p,
+  A = NULL,
+  b = NULL,
+  Aeq = NULL,
+  beq = NULL,
+  solver = c("nlminb", "solnl", "nloptr"),
+  ...
+)
 }
 \arguments{
 \item{p}{A vector of prior probabilities.}
@@ -16,6 +24,10 @@ entropy_pooling(p, A = NULL, b = NULL, Aeq, beq)
 \item{Aeq}{The linear equality constraint (left-hand side).}
 
 \item{beq}{The linear equality constraint (right-hand side).}
+
+\item{solver}{A \code{character}. One of: "nlminb", "solnl" or "nloptr".}
+
+\item{...}{Further arguments passed to one of the solvers.}
 }
 \value{
 A vector of posterior probabilities.
@@ -23,6 +35,13 @@ A vector of posterior probabilities.
 \description{
 This function solves the entropy minimization problem with equality and inequality
 constraints. The solution is a vector of posterior probabilities that distorts
-the least the prior (equal-weights probabilities), given the constraints.
+the least the prior (equal-weights probabilities) given the constraints (views on
+the market).
 }
-\keyword{internal}
+\details{
+When imposing views constraints there is no need to specify the non-negativity
+constraint, which is done automatically by \code{entropy_pooling}.
+
+For the arguments accepted in \code{...}, please see the documentation of
+\code{\link[stats]{nlminb}}, \code{\link[NlcOptim]{solnl}} and \code{\link[nloptr]{nloptr}}.
+}
