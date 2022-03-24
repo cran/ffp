@@ -1,3 +1,10 @@
+# ffp 0.2.1
+
+# ffp 0.2.1
+
+* Bug fix in `entropy_pooling()` when dealing with multiple inequalities constraints;
+* Small changes in the documentation files.
+
 # ffp 0.2.0
 
 ## New Features
