@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Bernardo Reckziegel" />
+
+
+<title>How does EP work?</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">How does EP work?</h1>
+<h4 class="author">Bernardo Reckziegel</h4>
+
+
+
+<p>Entropy-pooling (EP) is a powerful Bayesian technique that can be
+used to construct and process <em>views</em> on many elements of a
+multivariate distribution. Entropy-pooling enhances the Black-Litterman
+(1990)<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>
+model by supporting views on non-normal markets, non-linear payoffs,
+tails of the distribution and more. As a result, the portfolio
+construction process can be substantially enriched.</p>
+<p>Formally, EP relies on the <a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibner</a>
+divergence to quantify the entropy between different distributions. The
+main goal is to minimize:</p>
+<!-- In this case, how well the _posterior_ can be approximated to the _prior_.   -->
+<p><span class="math display">\[ \sum_{j=1}^{J} {x_j}(ln(x_j) -
+ln(p_j))\]</span> Subject to the restrictions:</p>
+<p><span class="math display">\[ Fx_j  \le f \\ Hx_j = h \]</span></p>
+<p>In which <span class="math inline">\(x_j\)</span> is a yet to be
+discovered <em>posterior</em> probability; <span class="math inline">\(p_j\)</span> is a <em>prior</em> probability
+distribution; and the vectors <span class="math inline">\(F\)</span>,
+<span class="math inline">\(f\)</span>, <span class="math inline">\(H\)</span> and <span class="math inline">\(h\)</span> (i.e. the <em>views</em>) act as linear
+constraints on <span class="math inline">\(x_j\)</span>.</p>
+<p>When <span class="math inline">\(x_j = p_j\)</span>, the relative
+entropy is zero and the two distributions coincide (i.e. the user views
+are in complete agreement with the market historical distribution). This
+is often unrealistic. Most commonly, the <em>views</em> will differ and
+the objective function will seek a value for <span class="math inline">\(x_j\)</span> that deviates from <span class="math inline">\(p_j\)</span> with the minimal possible adjustment,
+just the enough to incorporate the <em>views</em>.</p>
+<p>The Lagrange can be formulated as:</p>
+<p><span class="math display">\[ \mathcal{L}(x, \lambda, v) =
+x&#39;(ln(x) - ln(p)) + \lambda&#39;(Fx - f) + \nu&#39;(Hx - h)
+\]</span> To which <span class="math inline">\(\lambda\)</span> is the
+Lagrange multiplier for the inequality constraint and <span class="math inline">\(\nu\)</span> is the multiplier for the equality
+constraint. The subscript <span class="math inline">\(j\)</span> is
+drooped to light the notation.</p>
+<p>The first order condition with respect to <span class="math inline">\(x\)</span> yields:</p>
+<p><span class="math display">\[ \frac{\partial \mathcal{L}}{\partial x}
+= ln(x) - ln(p) + 1 + F&#39;\lambda + H&#39;\nu\]</span> Set <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial x} =
+0\)</span> and separate the elements that contain <span class="math inline">\(x\)</span> from the rest to get:</p>
+<p><span class="math display">\[ ln(x) = ln(p) - 1 - F&#39;\lambda -
+H&#39;\nu \]</span> As a last step, exponentiate both sides to find a
+closed form solution for <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[ x(\lambda, v) = e^{ln(p) - 1 -
+F&#39;\lambda - H&#39;\nu} \]</span></p>
+<p>The solution is always positive and <span class="math inline">\(x \ge
+0\)</span> is always satisfied. Nevertheless, <span class="math inline">\(x\)</span> still depends on the parameters, <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(\nu\)</span>, that can take any value.</p>
+<p>In order to solve for <span class="math inline">\(\lambda\)</span>
+and <span class="math inline">\(\nu\)</span>, set the dual
+formulation:</p>
+<p><span class="math display">\[ D(\lambda, \nu) =
+\mathcal{L}(x(\lambda, \nu), \lambda, \nu) \\ s.t. \ \lambda \ge 0, \
+\nu \ \]</span></p>
+<p>This expression can be solved numerically, which allows to recover
+<span class="math inline">\(\lambda^*\)</span> and <span class="math inline">\(\nu^*\)</span>, the optimal values for the
+Lagrange multipliers.</p>
+<p>Plug <span class="math inline">\(\lambda^*\)</span> and <span class="math inline">\(\nu^*\)</span> in the optimal expression for <span class="math inline">\(x(\lambda, \nu)\)</span>:</p>
+<span class="math display">\[\begin{align*}
+x(\lambda, \nu) &amp;= e^{ln(p) - 1 - F&#39;\lambda - H&#39;\nu} \\
+x^*(\lambda^*, \nu^*) &amp;= e^{ln(p) - 1 - F&#39;\lambda^* -
+H&#39;\nu^*} \\  
+x^*(\lambda^*, \nu^*) &amp;= p^*
+\end{align*}\]</span>
+<p>To get the probability vector that incorporates the <em>views</em> by
+distorting the “least” the original probability vector.</p>
+<p>Notice that the dual optimization only works on the multipliers <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(\nu\)</span> (the number of constraints in the
+original problem). This “dimensionality reduction” is exactly what makes
+entropy-pooling feasible, even when the number of scenarios in the
+original dataset is large.</p>
+<p>In other words, for every <span class="math inline">\(J\)</span>
+realization (historical or simulated) the computational complexity is
+shrinked, because entropy-pooling only prices the <em>probabilities</em>
+of each scenario, not the scenarios themselves (the <span class="math inline">\(J \times K\)</span> panel is treated as
+fixed).</p>
+<p><img src="data:image/png;base64,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" width="333" style="display: block; margin: auto;" /></p>
+<p>Since every realization in the <span class="math inline">\(J \times
+K\)</span> panel is connected to the <span class="math inline">\(J
+\times 1\)</span> vector of <em>posterior</em> probabilities, the
+<em>conditional</em> statistics on the P&amp;L can be computed super
+fast.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.
+As a result, EP can be used on “real-time”, without the computational
+burden of traditional Bayesian techniques.</p>
+<!-- In the `ffp` package, the numerical minimization of the relative entropy is implemented with `entropy_pooling()`. The function arguments differs from the notation in Meucci (2008)[^2] to keep consistency with the standard documentation in a wide range of available solvers. To that end, the table bellow shows that can be easy to migrate from one reading to another. -->
+<!-- [^2]: Meucci, Attilio, Fully Flexible Views: Theory and Practice (August 8, 2008). Fully Flexible Views: Theory and Practice, Risk, Vol. 21, No. 10, pp. 97-102, October 2008, Available at SSRN: https://ssrn.com/abstract=1213325. -->
+<!-- | Package | Paper |     Argument Type     | -->
+<!-- |:-------:|:-----:|:---------------------:| -->
+<!-- |  `Aeq`  | **H** |  Equality Constraint  | -->
+<!-- |  `beq`  | **h** |  Equality Constraint  | -->
+<!-- |   `A`   | **F** | Inequality Constraint | -->
+<!-- |   `b`   | **f** | Inequality Constraint | -->
+<!-- : Meucci (2008) vs. `ffp` Package -->
+<!-- <!-- Entropy-pooling is appealing and has found it's applications on portfolio construction[^3] [^4] and risk-management[^5].  -->
+<!-- For more details, please, see the `entropy_pooling()` documentation or the package vignettes on the top of this page. -->
+<!-- [^3]: Meucci, Attilio and Ardia, David and Colasante, Marcello, Portfolio Construction and Systematic Trading with Factor Entropy Pooling (May 8, 2014). Risk Magazine, Vol. 27, No. 5, pp. 56-61, 2014 , Available at SSRN: https://ssrn.com/abstract=1742559 or http://dx.doi.org/10.2139/ssrn.1742559. -->
+<!-- [^4]: Georgelis, Nikos and Mikael Nyberg. “A Scenario Based Allocation Model Using Entropy Pooling for Computing the Scenario Probabilities.” (2013). -->
+<!-- [^5]: Meucci, Attilio, Historical Scenarios with Fully Flexible Probabilities (October 23, 2010). GARP Risk Professional, pp. 47-51, December 2010, Available at SSRN: https://ssrn.com/abstract=1696802 or http://dx.doi.org/10.2139/ssrn.1696802. -->
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>Black, Fisher and Letterman, Robert (1990), Global
+Portfolio Optimization, <em>Financial Analyst Journal</em>, September
+1992.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>See the functions <code>ffp_moments()</code> and
+<code>empirical_stats()</code>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

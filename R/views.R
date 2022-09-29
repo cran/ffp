@@ -20,7 +20,7 @@
 #' ret <- diff(log(EuStockMarkets))
 #' n   <- nrow(ret)
 #'
-#' # Prior beliefs for expected returns (here is 2% for each asset)
+#' # View on expected returns (here is 2% for each asset)
 #' mean <- rep(0.02, 4)
 #'
 #' # Prior probabilities (usually equal weight scheme)
@@ -44,7 +44,7 @@ view_on_mean <- function(x, mean) {
 #' @rdname view_on_mean
 #' @export
 view_on_mean.default <- function(x, mean) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_mean
@@ -106,8 +106,10 @@ construct_view_on_mean <- function(x, mean) {
 #'
 #' # Expectations for location and dispersion parameters
 #' mean <- colMeans(ret) # No active expectations for returns
-#' covs <- matrix(0, ncol = 4, nrow = 4) # assuming all assets are uncorrelated
-#'                                       # very strong view!
+#' cor <- matrix(0, ncol = 4, nrow = 4) # diagonal covariance matrix
+#' diag(cor) <- 1                       # diagonal covariance matrix
+#' sds <- apply(ret, 2, sd)             # diagonal covariance matrix
+#' covs <- diag(sds) %*% cor %*% diag(sds) ## diagonal covariance matrix
 #'
 #' # prior probabilities (usually equal weight scheme)
 #' prior <- rep(1 / nrow(ret), nrow(ret))
@@ -132,7 +134,7 @@ view_on_covariance <- function(x, mean, sigma) {
 #' @keywords internal
 #' @rdname view_on_covariance
 view_on_covariance.default <- function(x, mean, sigma) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_covariance
@@ -230,7 +232,7 @@ view_on_correlation <- function(x, cor) {
 #' @rdname view_on_correlation
 #' @export
 view_on_correlation.default <- function(x, cor) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_correlation
@@ -327,7 +329,7 @@ view_on_volatility <- function(x, vol) {
 #' @rdname view_on_volatility
 #' @export
 view_on_volatility.default <- function(x, vol) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_volatility
@@ -354,9 +356,6 @@ construct_view_on_volatility <- function(x, vol) {
   assertthat::assert_that(assertthat::are_equal(NCOL(x), vctrs::vec_size(vol)))
   vctrs::vec_assert(vol, double())
 
-  Aeq <- NULL
-  #beq <- NULL
-
   Aeq <- t(x) ^ 2
   beq <- colMeans(x) ^ 2 + vol ^ 2
 
@@ -376,7 +375,7 @@ construct_view_on_volatility <- function(x, vol) {
 #' Helper to construct views on relative performance of assets.
 #'
 #' If `rank = c(2, 1)` it is implied that asset in the first column will outperform
-#' the asset in the second column. For vectors of bigger size the interpretation
+#' the asset in the second column. For longer vectors the interpretation
 #' is the same: assets on the right will outperform assets on the left.
 #'
 #' @param x An univariate or a multivariate distribution.
@@ -413,7 +412,7 @@ view_on_rank <- function(x, rank) {
 #' @rdname view_on_rank
 #' @export
 view_on_rank.default <- function(x, rank) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_rank
@@ -584,7 +583,7 @@ view_on_copula <- function(x, simul, p) {
 #' @rdname view_on_copula
 #' @export
 view_on_copula.default <- function(x, simul, p) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_copula
@@ -615,10 +614,15 @@ construct_view_on_copula <- function(x, simul, p) {
   Aeq <- NULL
   beq <- NULL
 
+  # first moment
   Aeq <- rbind(Aeq, t(x))
   beq <- as.matrix(c(beq, rep(1 / 2, NCOL(x))))
 
-  # order 2
+  # second moment
+  #Aeq <- rbind(Aeq, t(x) ^ 2)
+  #beq <- as.matrix(c(beq, rep(1 / 3, NCOL(x))))
+
+  # cross moments
   for (k in 1:N) {
     for (l in k:N) {
       Aeq <- rbind(Aeq, t(x[ , k] * x[ , l]))
@@ -626,12 +630,14 @@ construct_view_on_copula <- function(x, simul, p) {
     }
   }
 
-  # order 3
-  for (k in 1:N) {
-    for (l in k:N) {
-      for (i in l:k) {
-        Aeq <- rbind(Aeq, t(x[ , k] * x[ , l] * x[ , i]))
-        beq <- rbind(beq, t(simul[ , k] * simul[ , l] * simul[ , i]) %*% p)
+  if (N > 2) {
+    # order 3
+    for (k in 1:N) {
+      for (l in k:N) {
+        for (i in l:k) {
+          Aeq <- rbind(Aeq, t(x[ , k] * x[ , l] * x[ , i]))
+          beq <- rbind(beq, t(simul[ , k] * simul[ , l] * simul[ , i]) %*% p)
+        }
       }
     }
   }
@@ -697,7 +703,7 @@ view_on_marginal_distribution <- function(x, simul, p) {
 #' @rdname view_on_marginal_distribution
 #' @export
 view_on_marginal_distribution.default <- function(x, simul, p) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_marginal_distribution
@@ -736,12 +742,12 @@ construct_view_on_marginal_distribution <- function(x, simul, p) {
   beq <- rbind(beq, t(simul ^ 2) %*% p)
 
   # Skewness
-  Aeq <- rbind(Aeq, t(x) ^ 3)
-  beq <- rbind(beq, (t(simul) ^ 3) %*% p)
+  #Aeq <- rbind(Aeq, t(x) ^ 3)
+  #beq <- rbind(beq, (t(simul) ^ 3) %*% p)
 
   # Kurtosis
-  Aeq <- rbind(Aeq, t(x) ^ 4)
-  beq <- rbind(beq, (t(simul) ^ 4) %*% p)
+  #Aeq <- rbind(Aeq, t(x) ^ 4)
+  #beq <- rbind(beq, (t(simul) ^ 4) %*% p)
 
 
   vctrs::new_list_of(
@@ -807,7 +813,7 @@ view_on_joint_distribution <- function(x, simul, p) {
 #' @rdname view_on_joint_distribution
 #' @export
 view_on_joint_distribution.default <- function(x, simul, p) {
-  stop("Method not implemented for class `", class(x), "` yet.", call. = FALSE)
+  rlang::abort("Method not implemented for class `", class(x), "` yet.")
 }
 
 #' @rdname view_on_joint_distribution
@@ -851,14 +857,14 @@ construct_view_on_joint_distribution <- function(x, simul, p) {
   }
 
   # order 3
-  for (k in 1:N) {
-    for (l in k:N) {
-      for (i in l:k) {
-        Aeq <- rbind(Aeq, t(x[ , k] * x[ , l] * x[ , i]))
-        beq <- rbind(beq, t(simul[ , k] * simul[ , l] * simul[ , i]) %*% p)
-      }
-    }
-  }
+  # for (k in 1:N) {
+  #   for (l in k:N) {
+  #     for (i in l:k) {
+  #       Aeq <- rbind(Aeq, t(x[ , k] * x[ , l] * x[ , i]))
+  #       beq <- rbind(beq, t(simul[ , k] * simul[ , l] * simul[ , i]) %*% p)
+  #     }
+  #   }
+  # }
 
   vctrs::new_list_of(
     x      = list(Aeq = Aeq, beq = beq),
